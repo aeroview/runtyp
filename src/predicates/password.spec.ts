@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 import {ValidationError} from '..';
 import {password} from './password';
 

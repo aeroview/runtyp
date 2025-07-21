@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 import {optional} from './optional';
 import {string} from './string';
 import {object} from './object';

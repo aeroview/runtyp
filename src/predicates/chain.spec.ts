@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 import {chain} from './chain';
 import {ValidationError} from '..';
 import {string} from './string';

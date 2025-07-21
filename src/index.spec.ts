@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 import {predicates as p, Infer} from '.';
 
 test('test Infer type and type gaurd functionality', (assert) => {

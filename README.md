@@ -398,6 +398,7 @@ Returns a predicate that checks if the input is a valid URL.
 Options:
 
 - `allowLocalhost` - allows localhost URLs, default is `false`
+- `requireProtocol` - requires the URL to include a protocol (http:// or https://), default is `true`
 
 # ValidationError
 

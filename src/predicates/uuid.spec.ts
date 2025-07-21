@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 import {uuid} from './uuid';
 import {ValidationError} from '..';
 

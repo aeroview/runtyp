@@ -1,4 +1,4 @@
-import {test} from 'hoare';
+import {test} from 'kizu';
 import {array} from './array';
 import {number} from './number';
 import {Pred, ValidationError} from '..';
