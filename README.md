@@ -1,10 +1,6 @@
-<picture>
-    <source srcset="docs/typura.svg" media="(prefers-color-scheme: dark)">
-    <source srcset="docs/typura.svg" media="(prefers-color-scheme: light)">
-    <img src="docs/typura.svg" alt="Logo" style="margin: 0 0 10px" size="250">
-</picture>
+# forma
 
-[![build status](https://github.com/aeroview/typura/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
+[![build status](https://github.com/aeroview/forma/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
 ![Code Coverage](https://img.shields.io/badge/Code%20Coverage%20-%20100%25%20-%20%2331c352)
 [![SemVer](https://img.shields.io/badge/SemVer-2.0.0-blue)]()
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -23,7 +19,7 @@ Sponsored by https://aeroview.io
 
 **😀 User-friendly & powerful**
 
-- Native Typescript support with readable types
+- Native Typescript support with <strong>simple, human-readable inferred types</strong>
 - Easy-to-use declarative & functional API
 - [Structured error messages](#validationerror) that are easy to parse on both server & client
 - Works great both on the server and in the browser
@@ -36,7 +32,7 @@ Sponsored by https://aeroview.io
 # Installation
 
 ```bash
-npm i typura
+npm i forma
 ```
 
 # Table of contents
@@ -57,7 +53,7 @@ npm i typura
 ## Example
 
 ```typescript
-import {predicates as p, Infer} from 'typura';
+import {predicates as p, Infer} from 'forma';
 
 enum FavoriteColor {
     Red = 'red',
@@ -117,7 +113,7 @@ try {
 ## Using the "Result" pattern
 
 ```typescript
-import {predicates as p, ValidationError, toResult} from 'typura';
+import {predicates as p, ValidationError, toResult} from 'forma';
 
 const validator = p.object({
     email: p.email(),
@@ -143,7 +139,7 @@ R-type is tree-shakeable. This means that you can import only the predicates you
 This is useful for frontend applications where bundle size is a concern. As a bonus, this allows our repo to contain a large number of predicates for convenience without bloating your bundle. Best of both worlds!
 
 ```typescript
-import {email} from 'typura/dist/predicates';
+import {email} from 'forma/dist/predicates';
 
 const isEmail = email();
 ```
@@ -153,7 +149,7 @@ const isEmail = email();
 You can nest objects by using the `object` predicate. This allows you to create complex validation rules for nested objects. The `ValidationError` object will be flattened to include the nested object keys with a dot separator.
 
 ```typescript
-import {predicates as p, Infer} from 'typura';
+import {predicates as p, Infer} from 'forma';
 
 const validator = p.object({
     email: p.email(),
@@ -199,7 +195,7 @@ A type gaurd that takes an input and returns a boolean. It is used to narrow the
 Example:
 
 ```typescript
-import {Pred} from 'typura';
+import {Pred} from 'forma';
 
 const isNumber: Pred<number> = (input: unknown): input is number => typeof input === 'number';
 ```
@@ -225,7 +221,7 @@ Options:
 Example:
 
 ```typescript
-import {number} from 'typura/dist/predicates';
+import {number} from 'forma/dist/predicates';
 const isNumber = number({range: {min: 0, max: 100}});
 ```
 
@@ -279,7 +275,7 @@ Returns a predicate that checks if the input passes a custom function.
 Example:
 
 ```typescript
-import {custom} from 'typura/dist/predicates';
+import {custom} from 'forma/dist/predicates';
 
 const is42 = custom((input: number) => input === 42, 'must be 42');
 
@@ -297,7 +293,7 @@ Returns a predicate that checks if the input passes the provided regular express
 Example:
 
 ```typescript
-import {regex} from 'typura/dist/predicates';
+import {regex} from 'forma/dist/predicates';
 
 regex(/^[a-z]+$/, 'not a-z')('abc'); // true
 regex(/^[a-z]+$/, 'not a-z')('123'); // throws ValidationError: 'not a-z'
@@ -313,7 +309,7 @@ Returns a predicate that chains multiple predicates together. The input must pas
 Example:
 
 ```typescript
-import {chain, email, custom} from 'typura/dist/predicates';
+import {chain, email, custom} from 'forma/dist/predicates';
 
 const isSchoolEmail = chain(
     email(), 
@@ -330,7 +326,7 @@ Returns a predicate that checks if the input passes any of the given predicates.
 Example:
 
 ```typescript
-import {union, email, custom} from 'typura/dist/predicates';
+import {union, email, custom} from 'forma/dist/predicates';
 
 const isEmailOrEvenNumber = union(email(), custom((input: number) => input % 2 === 0, 'must be an even number'));
 
@@ -350,7 +346,7 @@ Returns a predicate that checks if the input is equal to the expected value.
 Example:
 
 ```typescript
-import {literal, union} from 'typura/dist/predicates';
+import {literal, union} from 'forma/dist/predicates';
 
 const is42 = literal(42);
 
@@ -450,7 +446,7 @@ Error [ValidationError]: ValidationError
 You can use the `custom()` predicate to define a predicate at runtime, while still using the `Infer` type at compile-time. This is useful when you need to define a predicate based on user input or configuration.
 
 ```typescript
-import {predicates as p, Infer} from 'typura';
+import {predicates as p, Infer} from 'forma';
 
 const validator = p.custom((input: string) => {
     
@@ -469,7 +465,7 @@ type Input = Infer<typeof validator>; // string
 - Star this repo if you like it!
 - Submit an [issue](https://github.com/mhweiner/jsout/issues) with your problem, feature request or bug report
 - Issue a PR against `main` and request review. Make sure all tests pass and coverage is good.
-- Write about `typura` in your blog, tweet about it, or share it with your friends!
+- Write about `forma` in your blog, tweet about it, or share it with your friends!
 
 # Sponsors
 

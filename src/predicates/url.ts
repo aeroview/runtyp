@@ -1,4 +1,4 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 const regexWithoutLocalhost = /^(http|https):\/\/([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?(#\S*)?$/;
 const regexWithoutLocalhostOptional = /^((http|https):\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?(#\S*)?$/;
@@ -10,11 +10,11 @@ export function url(options?: {
     requireProtocol?: boolean
 }): Pred<string> {
 
-    return (value: unknown): value is string => {
+    return (value: unknown): ValidationResult<string> => {
 
         if (typeof value !== 'string') {
 
-            throw new ValidationError({root: 'must be a valid URL'});
+            return {isValid: false, errors: {root: 'must be a valid URL'}};
 
         }
 
@@ -35,11 +35,11 @@ export function url(options?: {
 
         if (tester.test(value)) {
 
-            return true;
+            return {isValid: true, value: value as string};
 
         } else {
 
-            throw new ValidationError({root: 'must be a valid URL'});
+            return {isValid: false, errors: {root: 'must be a valid URL'}};
 
         }
 

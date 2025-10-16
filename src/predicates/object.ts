@@ -1,11 +1,10 @@
-import {InferShape, Pred, ValidationError} from '..';
-import {toResult} from '../lib/toResult';
+/* eslint-disable max-lines-per-function */
+import {InferShape, Pred, ValidationResult} from '..';
 
 type ObjectOptions = {
     allowUnknownKeys?: boolean
 };
 
-// eslint-disable-next-line max-lines-per-function
 export function object<T extends Record<string, Pred<any>>>(
     schema: T,
     options?: ObjectOptions
@@ -13,30 +12,29 @@ export function object<T extends Record<string, Pred<any>>>(
 
     if (typeof schema !== 'object') throw new Error('invalid schema, must be object');
 
-    return (value: unknown): value is InferShape<T> => {
+    return (value: unknown): ValidationResult<InferShape<T>> => {
 
         if (typeof value !== 'object' || !value) {
 
-            throw new ValidationError({root: `must be an object with keys ${Object.keys(schema).join(', ')}`});
+            return {isValid: false, errors: {root: `must be an object with keys ${Object.keys(schema).join(', ')}`}};
 
         }
 
         // go through each key in the schema
-        const messages: Record<string, string> = Object.entries(schema)
+        const errors: Record<string, string> = Object.entries(schema)
             .reduce<Record<string, string>>((acc, [key, predicate]) => {
 
-            const [err] = toResult(() => predicate((value as Record<string, unknown>)[key]));
-            const isInvalid = err instanceof ValidationError;
+            const result = predicate((value as Record<string, unknown>)[key]);
 
-            if (isInvalid && Object.keys(err.messages).length === 1 && err.messages.root) {
+            if (!result.isValid && Object.keys(result.errors).length === 1 && result.errors.root) {
 
                 // root error
-                acc[key] = err.messages.root;
+                acc[key] = result.errors.root;
 
-            } else if (isInvalid) {
+            } else if (!result.isValid) {
 
                 // nested errors
-                Object.entries(err.messages).forEach(([subKey, subMessage]) => {
+                Object.entries(result.errors).forEach(([subKey, subMessage]) => {
 
                     acc[`${key}.${subKey}`] = subMessage;
 
@@ -55,7 +53,7 @@ export function object<T extends Record<string, Pred<any>>>(
 
                 if (!schema[key]) {
 
-                    messages[key] = 'unknown key';
+                    errors[key] = 'unknown key';
 
                 }
 
@@ -63,13 +61,19 @@ export function object<T extends Record<string, Pred<any>>>(
 
         }
 
-        if (Object.keys(messages).length > 0) {
+        if (Object.keys(errors).length > 0) {
 
-            throw new ValidationError(messages);
+            return {
+                isValid: false,
+                errors,
+            };
 
         }
 
-        return true;
+        return {
+            isValid: true,
+            value: value as InferShape<T>,
+        };
 
     };
 

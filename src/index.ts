@@ -1,21 +1,14 @@
-export class ValidationError extends Error {
-
-    messages: Record<string, string>;
-    constructor(messages: Record<string, string>) {
-
-        super('ValidationError');
-        Object.setPrototypeOf(this, new.target.prototype); // restore prototype chain
-        this.name = this.constructor.name;
-        this.messages = messages;
-
-    }
-
-}
-
 export type Prettify<T> = {
     [K in keyof T]: T[K];
 } & {};
-export type Pred<T> = (value: unknown) => value is T;
+export type ValidationResult<T> = {
+    isValid: true
+    value: T
+} | {
+    isValid: false
+    errors: Record<string, string>
+};
+export type Pred<T> = (value: unknown) => ValidationResult<T>;
 export type Infer<T> = T extends Pred<infer U> ? Prettify<U> : never;
 export type IsOptional<T> = undefined extends T ? true : false;
 
@@ -32,4 +25,3 @@ Partial<Pick<T, OptionalKeys<T>>> extends infer O
     : never;
 
 export * as predicates from './predicates';
-export * from './lib/toResult';

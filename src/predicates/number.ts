@@ -1,24 +1,24 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function number(opts?: {
     range?: {min: number, max: number}
 }): Pred<number> {
 
-    return (value: unknown): value is number => {
+    return (value: unknown): ValidationResult<number> => {
 
         if (typeof value !== 'number') {
 
-            throw new ValidationError({root: 'must be a number'});
+            return {isValid: false, errors: {root: 'must be a number'}};
 
         }
 
         if (opts?.range && (value < opts.range.min || value > opts.range.max)) {
 
-            throw new ValidationError({root: `must be between ${opts.range.min} and ${opts.range.max}`});
+            return {isValid: false, errors: {root: `must be between ${opts.range.min} and ${opts.range.max}`}};
 
         }
 
-        return true;
+        return {isValid: true, value: value as number};
 
     };
 
