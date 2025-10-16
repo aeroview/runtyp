@@ -81,53 +81,37 @@ const result = validator({
 
 if (!result.isValid) {
     console.log(result.errors); 
-    /* 
+    /* Outputs:
     {
         email: 'must be a valid email address',
         password: 'must include at least one uppercase letter',
         mustBe42: 'must be 42',
     }
     */
+} else {
+
+    // result.isValid = true
+    // result.value is now typed as User
+
 }
 
-/* demonstrating type narrowing */
+// Example using predicates directly
 
-const input = {
-    email: 'john@smith.com',
-    password: 'Password1$',
-    name: 'John Doe',
-    favoriteColor: 'red',
-    mustBe42: 42,
-} as unknown; // unknown type to simulate unknown user input
+// Check if a string is a valid GitHub username
+const isValidUsername = p.chain(
+    p.string({len: {min: 1, max: 39}}),
+    p.regex(/^[a-zA-Z0-9-]+$/, 'can only contain letters, numbers, and hyphens'),
+    p.custom((username: string) => !username.startsWith('-') && !username.endsWith('-'), 'cannot start or end with hyphen')
+);
 
-const validationResult = validator(input);
-if (validationResult.isValid) {
-    // validationResult.value is now typed as User
-    const user = validationResult.value;
-    user.favoriteColor; // FavoriteColor
-}
-```
+// Validate a phone number (US format)
+const isValidPhone = p.regex(/^\(\d{3}\) \d{3}-\d{4}$/, 'must be in format (123) 456-7890');
 
-## Multiple validations
-
-```typescript
-import {predicates as p} from 'forma';
-
-const validator = p.object({
-    email: p.email(),
-    password: p.password(),
-});
-
-const input = {
-    email: '',
-    password: '',
-}
-
-const result = validator(input);
-
-if (!result.isValid) {
-    console.log(result.errors); // {email: 'must be a valid email address', password: 'must include at least one uppercase letter'}
-}
+// Check if a value is a valid port number
+const isValidPort = p.chain(
+    p.number({range: {min: 1, max: 65535}}),
+    p.custom((port: number) => Number.isInteger(port), 'must be an integer')
+);
 ```
 
 ## Taking advantage of tree-shaking
