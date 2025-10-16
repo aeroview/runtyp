@@ -1,16 +1,22 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function enumValue<T extends Record<string, string>>(enumObj: T): Pred<T[keyof T]> {
 
-    return (value: unknown): value is T[keyof T] => {
+    return (value: unknown): ValidationResult<T[keyof T]> => {
 
         if (typeof value !== 'string' || !Object.values(enumObj).includes(value as T[keyof T])) {
 
-            throw new ValidationError({root: 'must be a valid enum value'});
+            return {
+                isValid: false,
+                errors: {root: 'must be a valid enum value'},
+            };
 
         }
 
-        return true;
+        return {
+            isValid: true,
+            value: value as T[keyof T],
+        };
 
     };
 

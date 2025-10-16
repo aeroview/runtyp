@@ -1,16 +1,22 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function boolean(): Pred<boolean> {
 
-    return (value: unknown): value is boolean => {
+    return (value: unknown): ValidationResult<boolean> => {
 
         if (typeof value !== 'boolean') {
 
-            throw new ValidationError({root: 'must be a boolean'});
+            return {
+                isValid: false,
+                errors: {root: 'must be a boolean'},
+            };
 
         }
 
-        return true;
+        return {
+            isValid: true,
+            value: value as boolean,
+        };
 
     };
 

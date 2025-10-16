@@ -1,19 +1,25 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function custom<T>(
     predicate: (value: T) => boolean,
     errorMessage: string
 ): Pred<T> {
 
-    return (value: unknown): value is T => {
+    return (value: unknown): ValidationResult<T> => {
 
         if (!predicate(value as T)) {
 
-            throw new ValidationError({root: errorMessage});
+            return {
+                isValid: false,
+                errors: {root: errorMessage},
+            };
 
         }
 
-        return true;
+        return {
+            isValid: true,
+            value: value as T,
+        };
 
     };
 

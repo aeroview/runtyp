@@ -1,90 +1,53 @@
 import {test} from 'kizu';
-import {ValidationError} from '..';
 import {email} from './email';
 
-test('pred should return true for valid emails', (assert) => {
+test('email(): valid inputs', (assert) => {
 
-    const pred = email();
-
-    assert.equal(pred('john.doe@example.com'), true, 'email with dot');
-    assert.equal(pred('john.doe+test123@example.com'), true, 'email with plus');
-    assert.equal(pred('jane-doe@sub.example.co.uk'), true, 'with dash and subdomain');
-    assert.equal(pred('user.name@example.io'), true, 'user.name@example.io');
+    assert.equal(email()('john.doe@example.com'), {isValid: true, value: 'john.doe@example.com'}, 'should return true for valid emails with dots');
+    assert.equal(email()('john.doe+test123@example.com'), {isValid: true, value: 'john.doe+test123@example.com'}, 'should return true for valid emails with plus signs');
+    assert.equal(email()('jane-doe@sub.example.co.uk').isValid, true, 'should return true for valid emails with dashes and subdomains');
+    assert.equal(email()('user.name@example.io').isValid, true, 'should return true for valid emails with different TLDs');
+    assert.equal(email()('test@example.org').isValid, true, 'should return true for simple valid emails');
 
 });
 
-// eslint-disable-next-line max-lines-per-function
-test('pred should throw ValidationError for invalid emails', (assert) => {
+test('email(): invalid input types', (assert) => {
 
-    const pred = email();
-    const expectedErr = new ValidationError({
-        root: 'must be a valid email address',
-    });
+    assert.equal(email()(42), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for numbers');
+    assert.equal(email()(true), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for booleans');
+    assert.equal(email()(null), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for null');
+    assert.equal(email()(undefined), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for undefined');
+    assert.equal(email()({}), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for objects');
+    assert.equal(email()([]), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for arrays');
 
-    assert.throws(
-        () => pred(42),
-        expectedErr,
-        'not a string'
-    );
-    assert.throws(
-        () => pred(true),
-        expectedErr,
-        'not a string'
-    );
-    assert.throws(
-        () => pred('plainaddress'),
-        expectedErr,
-        'plainaddress'
-    );
-    assert.throws(
-        () => pred('@missingusername.com'),
-        expectedErr,
-        'missing user name'
-    );
-    assert.throws(
-        () => pred('username@.com'),
-        expectedErr,
-        'missing domain'
-    );
-    assert.throws(
-        () => pred('username@.com.'),
-        expectedErr,
-        'period at end'
-    );
-    assert.throws(
-        () => pred('username@domain..com'),
-        expectedErr,
-        'double period'
-    );
-    assert.throws(
-        () => pred('username@domain@domain.com'),
-        expectedErr,
-        'double @'
-    );
-    assert.throws(
-        () => pred('.username@domain.com'),
-        expectedErr,
-        'period at start'
-    );
-    assert.throws(
-        () => pred('username@domain,com'),
-        expectedErr,
-        'comma instead of period'
-    );
-    assert.throws(
-        () => pred('usersdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfname@domain.com'),
-        expectedErr,
-        'too long username'
-    );
-    assert.throws(
-        () => pred('user@domainnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn.com'),
-        expectedErr,
-        'too long account'
-    );
-    assert.throws(
-        () => pred('user@domainnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn.commmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm'),
-        expectedErr,
-        'too long address'
-    );
+});
+
+test('email(): invalid email formats', (assert) => {
+
+    assert.equal(email()('plainaddress'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for plain addresses without @');
+    assert.equal(email()('@missingusername.com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails missing username');
+    assert.equal(email()('username@.com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with missing domain');
+    assert.equal(email()('username@.com.'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with period at end');
+    assert.equal(email()('username@domain..com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with double periods');
+    assert.equal(email()('username@domain@domain.com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with double @ symbols');
+    assert.equal(email()('.username@domain.com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with period at start');
+    assert.equal(email()('username@domain,com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with comma instead of period');
+
+});
+
+test('email(): length validation errors', (assert) => {
+
+    assert.equal(email()('usersdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfname@domain.com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with too long username');
+    assert.equal(email()('user@domainnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn.com'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with too long domain part');
+    assert.equal(email()('user@domainnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn.commmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm'), {isValid: false, errors: {root: 'must be a valid email address'}}, 'should return false for emails with too long address');
+
+});
+
+test('email(): edge cases', (assert) => {
+
+    assert.equal(email()('').isValid, false, 'should return false for empty strings');
+    assert.equal(email()(' ').isValid, false, 'should return false for whitespace');
+    assert.equal(email()('user@domain.com ').isValid, false, 'should return false for emails with trailing spaces');
+    assert.equal(email()(' user@domain.com').isValid, false, 'should return false for emails with leading spaces');
 
 });
