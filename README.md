@@ -1,4 +1,4 @@
-# forma
+# `forma`
 
 [![build status](https://github.com/aeroview/forma/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
 ![Code Coverage](https://img.shields.io/badge/Code%20Coverage%20-%20100%25%20-%20%2331c352)
@@ -21,7 +21,7 @@ Sponsored by https://aeroview.io
 
 - Native Typescript support with <strong>simple, human-readable inferred types</strong>
 - Easy-to-use declarative & functional API
-- [Structured error messages](#validationerror) that are easy to parse on both server & client
+- [Structured error messages](#error-handling) that are easy to parse on both server & client
 - Works great both on the server and in the browser
 - Composable and extensible with custom predicates
 
@@ -38,15 +38,15 @@ npm i forma
 # Table of contents
 
 - [Example](#example)
-- [The "Result" pattern](#using-the-result-pattern)
+- [Multiple validations](#multiple-validations)
 - [Taking advantage of tree-shaking](#taking-advantage-of-tree-shaking)
 - [Nested objects](#nested-objects)
-- [Type API](#type-api)
-- [Predicate API](#predicate-api)
-- [ValidationError](#validationerror)
+- [API Reference](#api-reference)
+- [Available Validators](#available-validators)
+- [Error Handling](#error-handling)
 - [Advanced Usage](#advanced-usage)
 - [Contribution](#contribution)
-- [Sponsorship](#get-better-observability-with-aeroview)
+- [Sponsorship](#sponsorship)
  
 # Usage
 
@@ -72,20 +72,23 @@ const validator = p.object({
 
 type User = Infer<typeof validator>; // {email: string, password: string, name: string, phone?: string, favoriteColor: FavoriteColor, mustBe42: number}
 
-validator({
+const result = validator({
     email: 'oopsie',
     password: 'password',
     name: 'John Doe',
     favoriteColor: 'red',
 });
 
-/* The above throws ValidationError: 
-{
-    email: 'must be a valid email address',
-    password: 'must include at least one uppercase letter',
-    mustBe42: 'must be 42',
+if (!result.isValid) {
+    console.log(result.errors); 
+    /* 
+    {
+        email: 'must be a valid email address',
+        password: 'must include at least one uppercase letter',
+        mustBe42: 'must be 42',
+    }
+    */
 }
-*/
 
 /* demonstrating type narrowing */
 
@@ -97,23 +100,18 @@ const input = {
     mustBe42: 42,
 } as unknown; // unknown type to simulate unknown user input
 
-try {
-    if (validator(input)) {
-        // input is now typed as User
-        input.favoriteColor; // FavoriteColor
-    }
-} catch (e) {
-    if (e instanceof ValidationError) {
-        console.log(e.messages);
-    }
-    throw e; // don't forget to rethrow your unhanded errors!
+const validationResult = validator(input);
+if (validationResult.isValid) {
+    // validationResult.value is now typed as User
+    const user = validationResult.value;
+    user.favoriteColor; // FavoriteColor
 }
 ```
 
-## Using the "Result" pattern
+## Multiple validations
 
 ```typescript
-import {predicates as p, ValidationError, toResult} from 'forma';
+import {predicates as p} from 'forma';
 
 const validator = p.object({
     email: p.email(),
@@ -125,10 +123,10 @@ const input = {
     password: '',
 }
 
-const [err] = toResult(() => validator(input));
+const result = validator(input);
 
-if (err instanceof ValidationError) {
-    console.log(err.messages); // {email: 'must be a valid email address', password: 'must include at least one uppercase letter'}
+if (!result.isValid) {
+    console.log(result.errors); // {email: 'must be a valid email address', password: 'must include at least one uppercase letter'}
 }
 ```
 
@@ -146,7 +144,7 @@ const isEmail = email();
 
 ## Nested objects 
 
-You can nest objects by using the `object` predicate. This allows you to create complex validation rules for nested objects. The `ValidationError` object will be flattened to include the nested object keys with a dot separator.
+You can nest objects by using the `object` predicate. This allows you to create complex validation rules for nested objects. The error object will be flattened to include the nested object keys with a dot separator.
 
 ```typescript
 import {predicates as p, Infer} from 'forma';
@@ -165,42 +163,64 @@ const validator = p.object({
 
 type User = Infer<typeof validator>; // {email: string, address: {line1: string, line2?: string, street: string, city: string, zip: string}}
 
-validator({
+const result = validator({
     email: 'blah',
     address: {}
 });
 
-/* The above throws ValidationError: 
-{
-    email: 'must be a valid email address',
-    'address.line1': 'must be a string',
-    'address.street': 'must be a string',
-    'address.state': 'must be a string',
-    'address.city': 'must be between 2 and 2 characters long', // Yeah, we should probably fix this :)
-    'address.zip': 'must be a string',
+if (!result.isValid) {
+    console.log(result.errors);
+    /* 
+    {
+        email: 'must be a valid email address',
+        'address.line1': 'must be a string',
+        'address.street': 'must be a string',
+        'address.state': 'must be a string',
+        'address.city': 'must be between 2 and 2 characters long', // Yeah, we should probably fix this :)
+        'address.zip': 'must be a string',
+    }
+    */
 }
-*/
 ```
 
-# Type API
+# API Reference
+
+## `ValidationResult<T>`
+
+The result type returned by all predicates:
+
+```typescript
+type ValidationResult<T> = {
+    isValid: true;
+    value: T;
+} | {
+    isValid: false;
+    errors: Record<string, string>;
+};
+```
 
 ## `Infer<T>`
 
-Infer is a utility type that extracts the type of the input from a predicate function. See the [example above](#example-usage) for usage.
+Infer is a utility type that extracts the type of the input from a predicate function. See the [example above](#example) for usage.
 
 ## `Pred<T>` 
 
-A type gaurd that takes an input and returns a boolean. It is used to narrow the type of the input to the type that the predicate is checking for. Every predicate function in our API returns a `Pred<T>`.
+A predicate function that takes an input and returns a `ValidationResult<T>`. Every predicate function in our API returns a `Pred<T>`.
 
 Example:
 
 ```typescript
 import {Pred} from 'forma';
 
-const isNumber: Pred<number> = (input: unknown): input is number => typeof input === 'number';
+const isNumber: Pred<number> = (input: unknown) => {
+    if (typeof input === 'number') {
+        return { isValid: true, value: input };
+    }
+    return { isValid: false, errors: { root: 'must be a number' } };
+};
 ```
 
-# Predicate API
+# Available Validators
 
 ## boolean
 
@@ -279,9 +299,8 @@ import {custom} from 'forma/dist/predicates';
 
 const is42 = custom((input: number) => input === 42, 'must be 42');
 
-is42(42); // true
-is42(43); // throws ValidationError: 'must be 42'
-
+const result = is42(42); // { isValid: true, value: 42 }
+const result2 = is42(43); // { isValid: false, errors: { root: 'must be 42' } }
 ```
 
 ## regex
@@ -295,9 +314,8 @@ Example:
 ```typescript
 import {regex} from 'forma/dist/predicates';
 
-regex(/^[a-z]+$/, 'not a-z')('abc'); // true
-regex(/^[a-z]+$/, 'not a-z')('123'); // throws ValidationError: 'not a-z'
-
+const result1 = regex(/^[a-z]+$/, 'not a-z')('abc'); // { isValid: true, value: 'abc' }
+const result2 = regex(/^[a-z]+$/, 'not a-z')('123'); // { isValid: false, errors: { root: 'not a-z' } }
 ```
 
 ## chain
@@ -319,7 +337,7 @@ const isSchoolEmail = chain(
 
 ## union
 
-`union<T extends readonly Pred<any>[]>(predicates: [...T], errorMessage: string): (value: unknown) => value is ExtractGuardedType<T[number]>`
+`union<T extends readonly Pred<any>[]>(predicates: [...T], errorMessage: string): Pred<ExtractResultType<T[number]>>`
 
 Returns a predicate that checks if the input passes any of the given predicates.
 
@@ -328,18 +346,18 @@ Example:
 ```typescript
 import {union, email, custom} from 'forma/dist/predicates';
 
-const isEmailOrEvenNumber = union(email(), custom((input: number) => input % 2 === 0, 'must be an even number'));
+const isEmailOrEvenNumber = union([email(), custom((input: number) => input % 2 === 0, 'must be an even number')], 'must be email or even number');
 
-isEmailOrEvenNumber('john@smith.com'); // true
-isEmailOrEvenNumber(2); // true
-isEmailOrEvenNumber(3); // throws ValidationError: 'must be an even number'
+const result1 = isEmailOrEvenNumber('john@smith.com'); // { isValid: true, value: 'john@smith.com' }
+const result2 = isEmailOrEvenNumber(2); // { isValid: true, value: 2 }
+const result3 = isEmailOrEvenNumber(3); // { isValid: false, errors: { root: 'must be email or even number' } }
 
 type IsEmailOrEvenNumber = Infer<typeof isEmailOrEvenNumber>; // string | number
 ```
 
 ## literal
 
-`literal<T>(expected: T, errorMessage: string): Pred<T>`
+`literal<T>(expected: T): Pred<T>`
 
 Returns a predicate that checks if the input is equal to the expected value.
 
@@ -357,11 +375,10 @@ const isBlueOrNull = union([
     literal(null)
 ], 'must be blue or null');
 
-isBlueOrNull('blue'); // true
-isBlueOrNull(null); // true
-isBlueOrNull('red'); // throws ValidationError: 'must be blue or null'
+const result1 = isBlueOrNull('blue'); // { isValid: true, value: 'blue' }
+const result2 = isBlueOrNull(null); // { isValid: true, value: null }
+const result3 = isBlueOrNull('red'); // { isValid: false, errors: { root: 'must be blue or null' } }
 ```
-
 
 ## email
 
@@ -384,7 +401,7 @@ Returns a predicate that checks if the input is a valid password. A valid passwo
 ## uuid
 `uuid(): Pred<string>`
 
-Returns a predicate that checks if the input is a valid UUID v4.
+Returns a predicate that checks if the input is a valid UUID.
 
 ## url
 `url(opts?: Options): Pred<string>`
@@ -396,47 +413,36 @@ Options:
 - `allowLocalhost` - allows localhost URLs, default is `false`
 - `requireProtocol` - requires the URL to include a protocol (http:// or https://), default is `true`
 
-# ValidationError
+# Error Handling
 
 Error messages are structured and designed to be easy to parse.
 
-When validation fails, it throws a `ValidationError` with a property `messages`. Within `messages` would be a key-value pair object of all validation errors, including any nested ones. If you are operating on "naked" values, ie, not within an `object` predicate, the key will be `root`. Here are a few examples:
+When validation fails, predicates return a `ValidationResult` with `isValid: false` and an `errors` object. The `errors` object contains key-value pairs of all validation errors, including any nested ones. If you are operating on "naked" values (not within an `object` predicate), the key will be `root`. Here are a few examples:
 
 ### Number (naked)
 
 ```typescript
-p.number()('blah');
-```
-
-```bash
-Error [ValidationError]: ValidationError
-    at [...]
-{
-  messages: { root: 'must be a number' }
-}
+const result = p.number()('blah');
+// result = { isValid: false, errors: { root: 'must be a number' } }
 ```
 
 ### Object
 
 ```typescript
-p.object({
+const result = p.object({
     email: p.email(),
     password: p.password(),
 })({
     email: 'blah',
     password: 'password',
 });
-```
-
-```bash
-Error [ValidationError]: ValidationError
-    at [...]
-{
-  messages: { 
-    email: 'must be a valid email address', 
-    password: 'must include at least one uppercase letter' 
-  }
-}
+// result = { 
+//   isValid: false, 
+//   errors: { 
+//     email: 'must be a valid email address', 
+//     password: 'must include at least one uppercase letter' 
+//   }
+// }
 ```
 
 # Advanced Usage
@@ -452,12 +458,12 @@ const validator = p.custom((input: string) => {
     
     const regEx = getRegExFromSomewhere();
 
-    return p.regex(regEx, 'invalid regex')(input);
+    const result = p.regex(regEx, 'invalid regex')(input);
+    return result.isValid;
 
 });
 
 type Input = Infer<typeof validator>; // string
-
 ```
 
 # Support, Feedback, and Contributions
@@ -467,12 +473,15 @@ type Input = Infer<typeof validator>; // string
 - Issue a PR against `main` and request review. Make sure all tests pass and coverage is good.
 - Write about `forma` in your blog, tweet about it, or share it with your friends!
 
-# Sponsors
-
+# Sponsorship
+<br>
 <picture>
-    <source srcset="docs/aeroview-logo-lockup.svg" media="(prefers-color-scheme: dark)">
-    <source srcset="docs/aeroview-logo-lockup-dark.svg" media="(prefers-color-scheme: light)">
-    <img src="docs/aeroview-logo-lockup-dark.svg" alt="Logo" style="max-width: 150px;margin: 0 0 10px">
+    <source srcset="docs/aeroview-white.svg" media="(prefers-color-scheme: dark)">
+    <source srcset="docs/aeroview-black.svg" media="(prefers-color-scheme: light)">
+    <img src="docs/aeroview-black.svg">
 </picture>
+<br>
 
-Aeroview is a developer-friendly, AI-powered observability platform that helps you monitor, troubleshoot, and optimize your applications. Get started for free at [https://aeroview.io](https://aeroview.io).
+Aeroview is a lightning-fast, developer-friendly, AI-powered logging IDE. Get started for free at [https://aeroview.io](https://aeroview.io).
+
+Want to sponsor this project? [Reach out](mailto:mhweiner234@gmail.com?subject=I%20want%20to%20sponsor%20forma).

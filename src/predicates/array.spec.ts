@@ -2,6 +2,8 @@ import {test} from 'kizu';
 import {array} from './array';
 import {number} from './number';
 import {custom} from './custom';
+import {object} from './object';
+import {string} from './string';
 
 test('array(): valid inputs', (assert) => {
 
@@ -47,6 +49,23 @@ test('array(): length validation', (assert) => {
     assert.equal(array(number(), {len: {max: 1}})([1, 2]), {isValid: false, errors: {root: 'must have at most 1 item(s)'}}, 'should return false if does not meet max');
     assert.equal(array(number(), {len: {min: 2, max: 2}})([1, 2, 3]), {isValid: false, errors: {root: 'must have exactly 2 item(s)'}}, 'should return false with exact error if min and max are same and out of range');
 
+});
+
+test('array(): nested object errors', (assert) => {
+    const userPred = object({
+        name: string(),
+        age: number(),
+    });
+    const pred = array(userPred);
+
+    assert.equal(pred([{name: 'John', age: 30}]).isValid, true, 'should return true for valid nested objects');
+    assert.equal(pred([{name: 42, age: 'invalid'}]), {
+        isValid: false,
+        errors: {
+            '[0].name': 'must be a string',
+            '[0].age': 'must be a number',
+        }
+    }, 'should return false with nested object errors using dot notation');
 });
 
 test('array(): edge cases', (assert) => {
