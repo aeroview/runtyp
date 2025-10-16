@@ -132,7 +132,7 @@ if (!result.isValid) {
 
 ## Taking advantage of tree-shaking
 
-R-type is tree-shakeable. This means that you can import only the predicates you need and the rest of the library will not be included in your bundle.
+`forma` is tree-shakeable. This means that you can import only the predicates you need and the rest of the library will not be included in your bundle.
 
 This is useful for frontend applications where bundle size is a concern. As a bonus, this allows our repo to contain a large number of predicates for convenience without bloating your bundle. Best of both worlds!
 
