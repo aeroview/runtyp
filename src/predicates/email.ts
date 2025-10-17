@@ -1,6 +1,12 @@
-import {Pred, ValidationError} from '..';
+/* eslint-disable max-lines-per-function */
+import {Pred, ValidationResult} from '..';
 
 const tester = /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
+
+const INVALID_EMAIL_ERROR = {
+    isValid: false,
+    errors: {root: 'must be a valid email address'},
+} as const;
 
 /**
  * Validates an email address.
@@ -8,26 +14,53 @@ const tester = /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~
  */
 export function email(): Pred<string> {
 
-    return (value: unknown): value is string => {
+    return (value: unknown): ValidationResult<string> => {
 
-        if (typeof value !== 'string') throw new ValidationError({root: 'must be a valid email address'});
+        if (typeof value !== 'string') {
+
+            return INVALID_EMAIL_ERROR;
+
+        }
 
         const emailParts = value.split('@');
 
-        if (emailParts.length !== 2) throw new ValidationError({root: 'must be a valid email address'});
+        if (emailParts.length !== 2) {
+
+            return INVALID_EMAIL_ERROR;
+
+        }
 
         const account = emailParts[0];
         const address = emailParts[1];
 
-        if (account.length > 64) throw new ValidationError({root: 'must be a valid email address'});
-        else if (address.length > 255) throw new ValidationError({root: 'must be a valid email address'});
+        if (account.length > 64) {
+
+            return INVALID_EMAIL_ERROR;
+
+        }
+        if (address.length > 255) {
+
+            return INVALID_EMAIL_ERROR;
+
+        }
 
         const domainParts = address.split('.');
 
-        if (domainParts.some((part) => part.length > 63)) throw new ValidationError({root: 'must be a valid email address'});
-        if (!tester.test(value)) throw new ValidationError({root: 'must be a valid email address'});
+        if (domainParts.some((part) => part.length > 63)) {
 
-        return true;
+            return INVALID_EMAIL_ERROR;
+
+        }
+        if (!tester.test(value)) {
+
+            return INVALID_EMAIL_ERROR;
+
+        }
+
+        return {
+            isValid: true,
+            value: value as string,
+        };
 
     };
 

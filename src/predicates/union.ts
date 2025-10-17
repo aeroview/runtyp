@@ -1,32 +1,37 @@
-import {Pred, toResult, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 /**
- * Extracts the type guarded by a predicate function.
+ * Extracts the type from a ValidationResult.
  */
-type ExtractGuardedType<P> = P extends (value: unknown) => value is infer T ? T : never;
+type ExtractResultType<P> = P extends Pred<infer T> ? T : never;
 
 /**
  * Returns a predicate that accepts any value passing one of the given predicates.
- * If none match and at least one throws, the error is rethrown.
+ * If none match, returns the custom error message.
  */
 export function union<T extends readonly Pred<any>[]>(
     predicates: [...T],
     errorMessage: string
-): (value: unknown) => value is ExtractGuardedType<T[number]> {
+): Pred<ExtractResultType<T[number]>> {
 
-    return (value: unknown): value is ExtractGuardedType<T[number]> => {
+    return (value: unknown): ValidationResult<ExtractResultType<T[number]>> => {
 
         for (const predicate of predicates) {
 
-            const [, result] = toResult(() => predicate(value));
+            const result = predicate(value);
 
-            if (result) return true;
+            if (result.isValid) {
+
+                return result;
+
+            }
 
         }
 
-        throw new ValidationError({
-            root: errorMessage,
-        });
+        return {
+            isValid: false,
+            errors: {root: errorMessage},
+        };
 
     };
 

@@ -1,16 +1,22 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function literal<T extends any>(expected: T): Pred<T> {
 
-    return (value: unknown): value is T => {
+    return (value: unknown): ValidationResult<T> => {
 
         if (value !== expected) {
 
-            throw new ValidationError({root: `must be ${expected}`});
+            return {
+                isValid: false,
+                errors: {root: `must be ${expected}`},
+            };
 
         }
 
-        return true;
+        return {
+            isValid: true,
+            value: value as T,
+        };
 
     };
 

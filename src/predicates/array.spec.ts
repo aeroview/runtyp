@@ -1,79 +1,79 @@
 import {test} from 'kizu';
 import {array} from './array';
 import {number} from './number';
-import {Pred, ValidationError} from '..';
 import {custom} from './custom';
+import {object} from './object';
+import {string} from './string';
 
-test('pred should return true for arrays', (assert) => {
+test('array(): valid inputs', (assert) => {
 
     const pred = array(number());
 
-    assert.equal(pred([]), true);
-    assert.equal(pred([1, 2, 3]), true);
+    assert.equal(pred([]), {isValid: true, value: []}, 'should return true for empty arrays');
+    assert.equal(pred([1, 2, 3]), {isValid: true, value: [1, 2, 3]}, 'should return true for valid number arrays');
+    assert.equal(pred([42]).isValid, true, 'should return true for single item arrays');
 
 });
 
-test('pred should throw ValidationError for invalid value', (assert) => {
+test('array(): invalid input types', (assert) => {
 
-    assert.throws(() => array(number())(42), new ValidationError({root: 'must be an array'}), 'throws');
-    assert.throws(() => array(number())([1, '2', 3]), new ValidationError({'[1]': 'must be a number'}), 'throws');
-    assert.throws(
-        () => array(custom(() => false, 'I like nothing'))([1, '2', 3]),
-        new ValidationError({
+    assert.equal(array(number())(42), {isValid: false, errors: {root: 'must be an array'}}, 'should return false for numbers');
+    assert.equal(array(number())(true), {isValid: false, errors: {root: 'must be an array'}}, 'should return false for booleans');
+    assert.equal(array(number())(null), {isValid: false, errors: {root: 'must be an array'}}, 'should return false for null');
+    assert.equal(array(number())(undefined), {isValid: false, errors: {root: 'must be an array'}}, 'should return false for undefined');
+    assert.equal(array(number())({}), {isValid: false, errors: {root: 'must be an array'}}, 'should return false for objects');
+    assert.equal(array(number())('string'), {isValid: false, errors: {root: 'must be an array'}}, 'should return false for strings');
+
+});
+
+test('array(): element validation errors', (assert) => {
+
+    assert.equal(array(number())([1, '2', 3]), {isValid: false, errors: {'[1]': 'must be a number'}}, 'should return false with element-specific errors');
+    assert.equal(array(custom(() => false, 'I like nothing'))([1, '2', 3]), {
+        isValid: false,
+        errors: {
             '[0]': 'I like nothing',
             '[1]': 'I like nothing',
             '[2]': 'I like nothing',
-        }),
-        'throws'
-    );
-
-    const predWithInvalidError: Pred<number> = (val: unknown): val is number => {
-
-        if (typeof val !== 'number') throw new Error('must be a number');
-        return true;
-
-    };
-
-    assert.throws(
-        () => array(predWithInvalidError)([1, '2', 3]),
-        new Error('must be a number'),
-        'throws'
-    );
+        },
+    }, 'should return false with multiple element errors');
 
 });
 
-// eslint-disable-next-line max-lines-per-function
-test('with specified optional length range', (assert) => {
+test('array(): length validation', (assert) => {
 
-    assert.equal(
-        array(number(), {len: {min: 2, max: 2}})([1, 2]),
-        true,
-        'should not throw if within range'
-    );
-    assert.equal(
-        array(number(), {len: {max: 5}})([]),
-        true,
-        'should not throw if empty but min is not specified'
-    );
-    assert.equal(
-        array(number(), {len: {min: 5}})([1, 1, 1, 1, 1]),
-        true,
-        'should not throw if meets min and there is no max'
-    );
-    assert.throws(
-        () => array(number(), {len: {min: 1}})([]),
-        new ValidationError({root: 'must have at least 1 item(s)'}),
-        'should throw if does not meet min'
-    );
-    assert.throws(
-        () => array(number(), {len: {max: 1}})([1, 2]),
-        new ValidationError({root: 'must have at most 1 item(s)'}),
-        'should throw if does not meet max'
-    );
-    assert.throws(
-        () => array(number(), {len: {min: 2, max: 2}})([1, 2, 3]),
-        new ValidationError({root: 'must have exactly 2 item(s)'}),
-        'should throw with exact error if min and max are the same and it is out of range'
-    );
+    assert.equal(array(number(), {len: {min: 2, max: 2}})([1, 2]).isValid, true, 'should return true if within exact range');
+    assert.equal(array(number(), {len: {max: 5}})([]).isValid, true, 'should return true if empty but min not specified');
+    assert.equal(array(number(), {len: {min: 5}})([1, 1, 1, 1, 1]).isValid, true, 'should return true if meets min and no max');
+    assert.equal(array(number(), {len: {min: 1}})([]), {isValid: false, errors: {root: 'must have at least 1 item(s)'}}, 'should return false if does not meet min');
+    assert.equal(array(number(), {len: {max: 1}})([1, 2]), {isValid: false, errors: {root: 'must have at most 1 item(s)'}}, 'should return false if does not meet max');
+    assert.equal(array(number(), {len: {min: 2, max: 2}})([1, 2, 3]), {isValid: false, errors: {root: 'must have exactly 2 item(s)'}}, 'should return false with exact error if min and max are same and out of range');
+
+});
+
+test('array(): nested object errors', (assert) => {
+
+    const userPred = object({
+        name: string(),
+        age: number(),
+    });
+    const pred = array(userPred);
+
+    assert.equal(pred([{name: 'John', age: 30}]).isValid, true, 'should return true for valid nested objects');
+    assert.equal(pred([{name: 42, age: 'invalid'}]), {
+        isValid: false,
+        errors: {
+            '[0].name': 'must be a string',
+            '[0].age': 'must be a number',
+        },
+    }, 'should return false with nested object errors using dot notation');
+
+});
+
+test('array(): edge cases', (assert) => {
+
+    assert.equal(array(number())([0]).isValid, true, 'should return true for arrays with zero values');
+    assert.equal(array(number())([-1, 0, 1]).isValid, true, 'should return true for arrays with negative and positive numbers');
+    assert.equal(array(number())([1.5, 2.7]).isValid, true, 'should return true for arrays with decimal numbers');
 
 });

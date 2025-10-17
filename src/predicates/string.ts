@@ -1,30 +1,30 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function string(opts?: {
     len?: {min?: number, max?: number}
 }): Pred<string> {
 
-    return (value: unknown): value is string => {
+    return (value: unknown): ValidationResult<string> => {
 
         if (typeof value !== 'string') {
 
-            throw new ValidationError({root: 'must be a string'});
+            return {isValid: false, errors: {root: 'must be a string'}};
 
         }
 
-        if (opts?.len?.min && value.length < opts.len.min) {
+        if (opts?.len?.min !== undefined && value.length < opts.len.min) {
 
-            throw new ValidationError({root: `must be at least ${opts.len.min} characters`});
-
-        }
-
-        if (opts?.len?.max && value.length > opts.len.max) {
-
-            throw new ValidationError({root: `must be at most ${opts.len.max} characters`});
+            return {isValid: false, errors: {root: `must be at least ${opts.len.min} characters`}};
 
         }
 
-        return true;
+        if (opts?.len?.max !== undefined && value.length > opts.len.max) {
+
+            return {isValid: false, errors: {root: `must be at most ${opts.len.max} characters`}};
+
+        }
+
+        return {isValid: true, value: value as string};
 
     };
 

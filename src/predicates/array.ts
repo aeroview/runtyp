@@ -1,7 +1,6 @@
 /* eslint-disable max-lines-per-function */
-import {Pred, ValidationError, toResult} from '..';
+import {Pred, ValidationResult} from '..';
 
-type ErrMsgs = Record<string, string>;
 type Opts = {
     len?: {min?: number, max?: number}
 };
@@ -11,63 +10,94 @@ export function array<T>(
     options?: Opts
 ): Pred<T[]> {
 
-    return (value: unknown): value is T[] => {
+    return (value: unknown): ValidationResult<T[]> => {
 
-        if (Array.isArray(value) === false) {
+        if (!Array.isArray(value)) {
 
-            throw new ValidationError({root: 'must be an array'});
+            return {
+                isValid: false,
+                errors: {root: 'must be an array'},
+            };
 
         }
 
         if (
-            options?.len?.min
-                && options?.len?.max
-                && options.len.min === options.len.max
-                && value.length !== options.len.min
+            options?.len?.min !== undefined
+            && options?.len?.max !== undefined
+            && options.len.min === options.len.max
+            && value.length !== options.len.min
         ) {
 
-            throw new ValidationError({root: `must have exactly ${options.len.min} item(s)`});
+            return {
+                isValid: false,
+                errors: {root: `must have exactly ${options.len.min} item(s)`},
+            };
 
         }
 
-        if (options?.len?.min && value.length < options.len.min) {
+        if (options?.len?.min !== undefined && value.length < options.len.min) {
 
-            throw new ValidationError({root: `must have at least ${options.len.min} item(s)`});
-
-        }
-
-        if (options?.len?.max && value.length > options.len.max) {
-
-            throw new ValidationError({root: `must have at most ${options.len.max} item(s)`});
+            return {
+                isValid: false,
+                errors: {root: `must have at least ${options.len.min} item(s)`},
+            };
 
         }
 
-        const messages = value.reduce<ErrMsgs>((acc, value, index) => {
+        if (options?.len?.max !== undefined && value.length > options.len.max) {
 
-            const [err] = toResult(() => predicate((value)));
+            return {
+                isValid: false,
+                errors: {root: `must have at most ${options.len.max} item(s)`},
+            };
 
-            if (err && err instanceof ValidationError) {
+        }
 
-                // root error
-                acc[`[${index}]`] = err.messages.root;
+        const errors: Record<string, string> = {};
+        const validItems: T[] = [];
 
-            } else if (err) {
+        for (let i = 0; i < value.length; i++) {
 
-                throw err;
+            const result = predicate(value[i]);
+
+            if (!result.isValid) {
+
+                if (result.errors.root) {
+
+                    errors[`[${i}]`] = result.errors.root;
+
+                } else {
+
+                    // Handle nested errors
+                    Object.entries(result.errors).forEach(([key, message]) => {
+
+                        errors[`[${i}].${key}`] = message;
+
+                    });
+
+                }
+
+            } else {
+
+                validItems.push(result.value);
 
             }
 
-            return acc;
+        }
 
-        }, {});
+        if (Object.keys(errors).length > 0) {
 
-        if (Object.keys(messages).length > 0) {
-
-            throw new ValidationError(messages);
+            return {
+                isValid: false,
+                errors,
+            };
 
         }
 
-        return true;
+        return {
+            isValid: true,
+            value: validItems,
+        };
 
     };
 

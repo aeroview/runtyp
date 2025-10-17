@@ -1,19 +1,34 @@
-import {Pred, ValidationError} from '..';
+import {Pred, ValidationResult} from '..';
 
 export function regex(
     exp: RegExp,
     errorMessage: string
 ): Pred<string> {
 
-    return (value: unknown): value is string => {
+    return (value: unknown): ValidationResult<string> => {
 
-        if (!exp.test(value as string)) {
+        if (typeof value !== 'string') {
 
-            throw new ValidationError({root: errorMessage});
+            return {
+                isValid: false,
+                errors: {root: errorMessage},
+            };
 
         }
 
-        return true;
+        if (!exp.test(value)) {
+
+            return {
+                isValid: false,
+                errors: {root: errorMessage},
+            };
+
+        }
+
+        return {
+            isValid: true,
+            value,
+        };
 
     };
 
