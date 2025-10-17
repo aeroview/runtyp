@@ -1,4 +1,4 @@
-# `forma`
+# `runtyy`
 
 [![build status](https://github.com/aeroview/forma/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
 ![Code Coverage](https://img.shields.io/badge/Code%20Coverage%20-%20100%25%20-%20%2331c352)
@@ -45,7 +45,7 @@ forma is designed for speed. Here's how it compares to other popular programmati
 # Installation
 
 ```bash
-npm i forma
+npm i runtyy
 ```
 
 # Table of contents
@@ -66,7 +66,7 @@ npm i forma
 ## Example
 
 ```typescript
-import {predicates as p, Infer} from 'forma';
+import {predicates as p, Infer} from 'runtyy';
 
 // Validate a user object
 
@@ -128,7 +128,7 @@ const isValidPort = p.chain(
 This is useful for frontend applications where bundle size is a concern. As a bonus, this allows our repo to contain a large number of predicates for convenience without bloating your bundle. Best of both worlds!
 
 ```typescript
-import {email} from 'forma/dist/predicates';
+import {email} from 'runtyy/dist/predicates';
 
 const isEmail = email();
 ```
@@ -138,7 +138,7 @@ const isEmail = email();
 You can nest objects by using the `object` predicate. This allows you to create complex validation rules for nested objects. The error object will be flattened to include the nested object keys with a dot separator.
 
 ```typescript
-import {predicates as p, Infer} from 'forma';
+import {predicates as p, Infer} from 'runtyy';
 
 const validator = p.object({
     email: p.email(),
@@ -201,7 +201,7 @@ A predicate function that takes an input and returns a `ValidationResult<T>`. Ev
 Example:
 
 ```typescript
-import {Pred} from 'forma';
+import {Pred} from 'runtyy';
 
 const isNumber: Pred<number> = (input: unknown) => {
     if (typeof input === 'number') {
@@ -243,7 +243,7 @@ Returns a predicate that checks if the input is a boolean.
 Example:
 
 ```typescript
-import {boolean} from 'forma/dist/predicates';
+import {boolean} from 'runtyy/dist/predicates';
 
 const isBoolean = boolean();
 const result1 = isBoolean(true); // { isValid: true, value: true }
@@ -263,7 +263,7 @@ Options:
 Example:
 
 ```typescript
-import {number} from 'forma/dist/predicates';
+import {number} from 'runtyy/dist/predicates';
 
 const isNumber = number({range: {min: 0, max: 100}});
 const result1 = isNumber(50); // { isValid: true, value: 50 }
@@ -284,7 +284,7 @@ Options:
 Example:
 
 ```typescript
-import {string} from 'forma/dist/predicates';
+import {string} from 'runtyy/dist/predicates';
 
 const isString = string({len: {min: 2, max: 10}});
 const result1 = isString('hello'); // { isValid: true, value: 'hello' }
@@ -305,7 +305,7 @@ Options:
 Example:
 
 ```typescript
-import {object, string, number} from 'forma/dist/predicates';
+import {object, string, number} from 'runtyy/dist/predicates';
 
 const userSchema = object({
     name: string(),
@@ -327,7 +327,7 @@ Options:
 Example:
 
 ```typescript
-import {array, number} from 'forma/dist/predicates';
+import {array, number} from 'runtyy/dist/predicates';
 
 const numberArray = array(number(), {len: {min: 1, max: 3}});
 const result1 = numberArray([1, 2, 3]); // { isValid: true, value: [1, 2, 3] }
@@ -344,7 +344,7 @@ Returns a predicate that checks if the input is a value of the specified enum.
 Example:
 
 ```typescript
-import {enumValue} from 'forma/dist/predicates';
+import {enumValue} from 'runtyy/dist/predicates';
 
 enum Color { Red = 'red', Green = 'green', Blue = 'blue' }
 const isColor = enumValue(Color);
@@ -361,7 +361,7 @@ Returns a predicate that checks if the input is either the type of the predicate
 Example:
 
 ```typescript
-import {optional, string} from 'forma/dist/predicates';
+import {optional, string} from 'runtyy/dist/predicates';
 
 const optionalString = optional(string());
 const result1 = optionalString('hello'); // { isValid: true, value: 'hello' }
@@ -378,7 +378,7 @@ Returns a predicate that checks if the input passes a custom function.
 Example:
 
 ```typescript
-import {custom} from 'forma/dist/predicates';
+import {custom} from 'runtyy/dist/predicates';
 
 const is42 = custom((input: number) => input === 42, 'must be 42');
 
@@ -395,7 +395,7 @@ Returns a predicate that checks if the input passes the provided regular express
 Example:
 
 ```typescript
-import {regex} from 'forma/dist/predicates';
+import {regex} from 'runtyy/dist/predicates';
 
 const result1 = regex(/^[a-z]+$/, 'not a-z')('abc'); // { isValid: true, value: 'abc' }
 const result2 = regex(/^[a-z]+$/, 'not a-z')('123'); // { isValid: false, errors: { root: 'not a-z' } }
@@ -410,7 +410,7 @@ Returns a predicate that chains multiple predicates together. The input must pas
 Example:
 
 ```typescript
-import {chain, email, custom} from 'forma/dist/predicates';
+import {chain, email, custom} from 'runtyy/dist/predicates';
 
 const isSchoolEmail = chain(
     email(), 
@@ -427,7 +427,7 @@ Returns a predicate that checks if the input passes any of the given predicates.
 Example:
 
 ```typescript
-import {union, email, custom} from 'forma/dist/predicates';
+import {union, email, custom} from 'runtyy/dist/predicates';
 
 const isEmailOrEvenNumber = union([email(), custom((input: number) => input % 2 === 0, 'must be an even number')], 'must be email or even number');
 
@@ -447,7 +447,7 @@ Returns a predicate that checks if the input is equal to the expected value.
 Example:
 
 ```typescript
-import {literal, union} from 'forma/dist/predicates';
+import {literal, union} from 'runtyy/dist/predicates';
 
 const is42 = literal(42);
 
@@ -472,7 +472,7 @@ Returns a predicate that checks if the input is a valid email address.
 Example:
 
 ```typescript
-import {email} from 'forma/dist/predicates';
+import {email} from 'runtyy/dist/predicates';
 
 const isEmail = email();
 const result1 = isEmail('user@example.com'); // { isValid: true, value: 'user@example.com' }
@@ -494,7 +494,7 @@ Returns a predicate that checks if the input is a valid password. A valid passwo
 Example:
 
 ```typescript
-import {password} from 'forma/dist/predicates';
+import {password} from 'runtyy/dist/predicates';
 
 const isPassword = password();
 const result1 = isPassword('MyPass123!'); // { isValid: true, value: 'MyPass123!' }
@@ -509,7 +509,7 @@ Returns a predicate that checks if the input is a valid UUID.
 Example:
 
 ```typescript
-import {uuid} from 'forma/dist/predicates';
+import {uuid} from 'runtyy/dist/predicates';
 
 const isUuid = uuid();
 const result1 = isUuid('123e4567-e89b-12d3-a456-426614174000'); // { isValid: true, value: '123e4567-e89b-12d3-a456-426614174000' }
@@ -529,7 +529,7 @@ Options:
 Example:
 
 ```typescript
-import {url} from 'forma/dist/predicates';
+import {url} from 'runtyy/dist/predicates';
 
 const isUrl = url({allowLocalhost: true});
 const result1 = isUrl('https://example.com'); // { isValid: true, value: 'https://example.com' }
@@ -575,7 +575,7 @@ const result = p.object({
 You can use the `custom()` predicate to define a predicate at runtime, while still using the `Infer` type at compile-time. This is useful when you need to define a predicate based on user input or configuration.
 
 ```typescript
-import {predicates as p, Infer} from 'forma';
+import {predicates as p, Infer} from 'runtyy';
 
 const validator = p.custom((input: string) => {
     

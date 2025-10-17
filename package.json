@@ -1,6 +1,6 @@
 {
-  "name": "typura",
-  "version": "0.0.0-autorel",
+  "name": "runtyy",
+  "version": "1.0.0",
   "description": "Lightning-fast, zero-dependency runtime validation for TS/JS. 25x faster than zod with a cleaner API.",
   "keywords": [
     "joi",
