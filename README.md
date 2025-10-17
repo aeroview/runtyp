@@ -12,7 +12,7 @@ Sponsored by https://aeroview.io
 
 **🚀 Fast & reliable performance** 
 
-- Faster than joi, yup, and zod (benchmarks coming soon)
+- Significantly faster than joi, yup, and zod (see [Performance](#performance) section)
 - Supports tree-shaking via ES Modules so you only bundle what you use
 - No dependencies
 - 100% test coverage
@@ -29,6 +29,20 @@ Sponsored by https://aeroview.io
 
 - Built-in support for email, urls, uuids, regex, enums, passwords, and more!
 
+## Performance
+
+forma is designed for speed. Here's how it compares to other popular validation libraries:
+
+| Library | Valid Data | Invalid Data | Total Time | Relative Speed |
+|---------|------------|--------------|------------|----------------|
+| **ajv** | 0.0002ms | 0.0001ms | 25.67ms | 1.0x (fastest) |
+| **forma** | 0.0005ms | 0.0009ms | 143.24ms | 5.6x slower |
+| **joi** | 0.0036ms | 0.0011ms | 471.73ms | 18.4x slower |
+| **yup** | 0.0143ms | 0.0222ms | 3647.05ms | 142.1x slower |
+| **zod** | 0.0007ms | 0.0370ms | 3773.26ms | 147.0x slower |
+
+*Benchmark results from 100,000 iterations of complex object validation with nested objects, arrays, and various validation rules. Lower times are better.*
+
 # Installation
 
 ```bash
@@ -37,6 +51,7 @@ npm i forma
 
 # Table of contents
 
+- [Performance](#performance)
 - [Example](#example)
 - [Multiple validations](#multiple-validations)
 - [Taking advantage of tree-shaking](#taking-advantage-of-tree-shaking)
