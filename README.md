@@ -1,6 +1,6 @@
 # `runtyy`
 
-[![build status](https://github.com/aeroview/forma/actions/workflows/release.yml/badge.svg)](https://github.com/mhweiner/express-typed-rpc/actions)
+[![build status](https://github.com/aeroview/runtyy/actions/workflows/release.yml/badge.svg)](https://github.com/aeroview/runtyy/actions)
 ![Code Coverage](https://img.shields.io/badge/Code%20Coverage%20-%20100%25%20-%20%2331c352)
 [![SemVer](https://img.shields.io/badge/SemVer-2.0.0-blue)]()
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -44,11 +44,11 @@ Sponsored by [Aeroview](https://aeroview.io)
  
 # Performance
 
-forma is designed for speed. Here's how it compares to other popular programmatic validation libraries:
+runtyy is designed for speed. Here's how it compares to other popular programmatic validation libraries:
 
 | Library | Valid Data | Invalid Data | Total Time | Relative Speed |
 |---------|------------|--------------|------------|----------------|
-| **forma** | 0.0005ms | 0.0009ms | 142.47ms | 1.0x (fastest) |
+| **runtyy** | 0.0005ms | 0.0009ms | 142.47ms | 1.0x (fastest) |
 | **joi** | 0.0042ms | 0.0018ms | 607.70ms | 4.3x slower |
 | **yup** | 0.0145ms | 0.0209ms | 3532.78ms | 24.8x slower |
 | **zod** | 0.0007ms | 0.0357ms | 3637.74ms | 25.5x slower |
@@ -123,7 +123,7 @@ const isValidPort = p.chain(
 
 ## Taking advantage of tree-shaking
 
-`forma` is tree-shakeable. This means that you can import only the predicates you need and the rest of the library will not be included in your bundle.
+`runtyy` is tree-shakeable. This means that you can import only the predicates you need and the rest of the library will not be included in your bundle.
 
 This is useful for frontend applications where bundle size is a concern. As a bonus, this allows our repo to contain a large number of predicates for convenience without bloating your bundle. Best of both worlds!
 
