@@ -52,11 +52,10 @@ npm i forma
 
 - [Performance](#performance)
 - [Example](#example)
-- [Multiple validations](#multiple-validations)
 - [Taking advantage of tree-shaking](#taking-advantage-of-tree-shaking)
 - [Nested objects](#nested-objects)
-- [API Reference](#api-reference)
-- [Available Validators](#available-validators)
+- [Type Definitions](#type-definitions)
+- [Predicates (Validators)](#predicates-validators)
 - [Error Handling](#error-handling)
 - [Advanced Usage](#advanced-usage)
 - [Contribution](#contribution)
@@ -175,7 +174,7 @@ if (!result.isValid) {
 }
 ```
 
-# API Reference
+# Type Definitions
 
 ## `ValidationResult<T>`
 
@@ -212,7 +211,9 @@ const isNumber: Pred<number> = (input: unknown) => {
 };
 ```
 
-# Available Validators
+# Predicates (Validators)
+
+Predicates are the building blocks of the validation API. They are functions that take an input and return a `ValidationResult`. You can use them to create your own custom predicates.
 
 ## boolean
 
