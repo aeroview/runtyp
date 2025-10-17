@@ -215,6 +215,25 @@ const isNumber: Pred<number> = (input: unknown) => {
 
 Predicates are the building blocks of the validation API. They are functions that take an input and return a `ValidationResult`. You can use them to create your own custom predicates.
 
+## Available Predicates
+
+- [`boolean()`](#boolean) - Validates boolean values
+- [`number()`](#number) - Validates numbers with optional range constraints
+- [`string()`](#string) - Validates strings with optional length constraints
+- [`object()`](#object) - Validates objects with schema definitions
+- [`array()`](#array) - Validates arrays with element and length constraints
+- [`enumValue()`](#enum) - Validates enum values
+- [`optional()`](#optional) - Makes any predicate optional (allows undefined)
+- [`custom()`](#custom) - Creates custom validation logic
+- [`regex()`](#regex) - Validates strings against regular expressions
+- [`chain()`](#chain) - Chains multiple predicates together
+- [`union()`](#union) - Validates against multiple possible predicates
+- [`literal()`](#literal) - Validates exact literal values
+- [`email()`](#email) - Validates email addresses
+- [`password()`](#password) - Validates password strength
+- [`uuid()`](#uuid) - Validates UUID strings
+- [`url()`](#url) - Validates URLs with optional constraints
+
 ## boolean
 
 `boolean(): Pred<boolean>` 
