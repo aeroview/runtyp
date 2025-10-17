@@ -52,6 +52,7 @@ test('array(): length validation', (assert) => {
 });
 
 test('array(): nested object errors', (assert) => {
+
     const userPred = object({
         name: string(),
         age: number(),
@@ -64,8 +65,9 @@ test('array(): nested object errors', (assert) => {
         errors: {
             '[0].name': 'must be a string',
             '[0].age': 'must be a number',
-        }
+        },
     }, 'should return false with nested object errors using dot notation');
+
 });
 
 test('array(): edge cases', (assert) => {
