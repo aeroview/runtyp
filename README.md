@@ -12,7 +12,7 @@ Sponsored by https://aeroview.io
 
 **🚀 Fast & reliable performance** 
 
-- Significantly faster than joi, yup, and zod (see [Performance](#performance) section)
+- Fastest among popular programmatic validation libraries (see [Performance](#performance) section)
 - Supports tree-shaking via ES Modules so you only bundle what you use
 - No dependencies
 - 100% test coverage
@@ -31,15 +31,14 @@ Sponsored by https://aeroview.io
 
 ## Performance
 
-forma is designed for speed. Here's how it compares to other popular validation libraries:
+forma is designed for speed. Here's how it compares to other popular programmatic validation libraries:
 
 | Library | Valid Data | Invalid Data | Total Time | Relative Speed |
 |---------|------------|--------------|------------|----------------|
-| **ajv** | 0.0002ms | 0.0001ms | 25.67ms | 1.0x (fastest) |
-| **forma** | 0.0005ms | 0.0009ms | 143.24ms | 5.6x slower |
-| **joi** | 0.0036ms | 0.0011ms | 471.73ms | 18.4x slower |
-| **yup** | 0.0143ms | 0.0222ms | 3647.05ms | 142.1x slower |
-| **zod** | 0.0007ms | 0.0370ms | 3773.26ms | 147.0x slower |
+| **forma** | 0.0005ms | 0.0009ms | 142.47ms | 1.0x (fastest) |
+| **joi** | 0.0042ms | 0.0018ms | 607.70ms | 4.3x slower |
+| **yup** | 0.0145ms | 0.0209ms | 3532.78ms | 24.8x slower |
+| **zod** | 0.0007ms | 0.0357ms | 3637.74ms | 25.5x slower |
 
 *Benchmark results from 100,000 iterations of complex object validation with nested objects, arrays, and various validation rules. Lower times are better.*
 
