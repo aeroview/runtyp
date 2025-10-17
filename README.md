@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![AutoRel](https://img.shields.io/badge/%F0%9F%9A%80%20AutoRel-2D4DDE)](https://github.com/mhweiner/autorel)
 
-Simple, extensible, fast, and strict runtime input validation for TS/JS. Like zod, but simpler.
+The fastest, simplest, and most powerful runtime input validation for TS/JS.
 
 Sponsored by https://aeroview.io
 
