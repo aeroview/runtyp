@@ -1,7 +1,7 @@
 {
   "name": "typura",
   "version": "0.0.0-autorel",
-  "description": "The fastest, simplest, and most powerful runtime input validation for TS/JS.",
+  "description": "Lightning-fast, zero-dependency runtime validation for TS/JS. 25x faster than zod with a cleaner API.",
   "keywords": [
     "joi",
     "zod",
