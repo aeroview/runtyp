@@ -69,28 +69,23 @@ npm i forma
 ```typescript
 import {predicates as p, Infer} from 'forma';
 
-enum FavoriteColor {
-    Red = 'red',
-    Blue = 'blue',
-    Green = 'green',
-}
+// Validate a user object
 
 const validator = p.object({
     email: p.email(),
     password: p.password(),
     name: p.string({len: {min: 1, max: 100}}),
     phone: p.optional(p.string()),
-    favoriteColor: p.enumValue(FavoriteColor),
     mustBe42: p.custom((input: number) => input === 42, 'must be 42'),
 });
 
-type User = Infer<typeof validator>; // {email: string, password: string, name: string, phone?: string, favoriteColor: FavoriteColor, mustBe42: number}
+type User = Infer<typeof validator>; // {email: string, password: string, name: string, phone?: string, mustBe42: number}
 
 const result = validator({
     email: 'oopsie',
     password: 'password',
     name: 'John Doe',
-    favoriteColor: 'red',
+    foo: 'bar',
 });
 
 if (!result.isValid) {
@@ -100,6 +95,7 @@ if (!result.isValid) {
         email: 'must be a valid email address',
         password: 'must include at least one uppercase letter',
         mustBe42: 'must be 42',
+        foo: 'unknown key',
     }
     */
 } else {
@@ -108,8 +104,6 @@ if (!result.isValid) {
     // result.value is now typed as User
 
 }
-
-// Example using predicates directly
 
 // Check if a string is a valid GitHub username
 const isValidUsername = p.chain(
