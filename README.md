@@ -226,6 +226,16 @@ const isNumber: Pred<number> = (input: unknown) => {
 
 Returns a predicate that checks if the input is a boolean.
 
+Example:
+
+```typescript
+import {boolean} from 'forma/dist/predicates';
+
+const isBoolean = boolean();
+const result1 = isBoolean(true); // { isValid: true, value: true }
+const result2 = isBoolean('hello'); // { isValid: false, errors: { root: 'must be a boolean' } }
+```
+
 ## number
 
 `number(opts?: Options): Pred<number>`
@@ -240,7 +250,11 @@ Example:
 
 ```typescript
 import {number} from 'forma/dist/predicates';
+
 const isNumber = number({range: {min: 0, max: 100}});
+const result1 = isNumber(50); // { isValid: true, value: 50 }
+const result2 = isNumber(150); // { isValid: false, errors: { root: 'must be between 0 and 100' } }
+const result3 = isNumber('hello'); // { isValid: false, errors: { root: 'must be a number' } }
 ```
 
 ## string
@@ -253,6 +267,17 @@ Options:
 
 - `len`: `{min: number, max: number} | undefined` - checks if the input is within the specified length
 
+Example:
+
+```typescript
+import {string} from 'forma/dist/predicates';
+
+const isString = string({len: {min: 2, max: 10}});
+const result1 = isString('hello'); // { isValid: true, value: 'hello' }
+const result2 = isString('a'); // { isValid: false, errors: { root: 'must be at least 2 characters' } }
+const result3 = isString(42); // { isValid: false, errors: { root: 'must be a string' } }
+```
+
 ## object
 
 `object<T>(predicates: {[K in keyof T]: Pred<T[K]>}, opts?: Options): Pred<T>`
@@ -263,6 +288,19 @@ Options:
 
 - `allowUnknownKeys` - allows unspecified/unexpected keys in the object, default is `false`
 
+Example:
+
+```typescript
+import {object, string, number} from 'forma/dist/predicates';
+
+const userSchema = object({
+    name: string(),
+    age: number()
+});
+const result1 = userSchema({name: 'John', age: 30}); // { isValid: true, value: { name: 'John', age: 30 } }
+const result2 = userSchema({name: 'John'}); // { isValid: false, errors: { age: 'must be a number' } }
+```
+
 ## array
 `array<T>(predicate: Pred<T>, opts?: Options): Pred<T[]>`
 
@@ -272,17 +310,50 @@ Options:
 
 - `len?`: `{min: number, max: number}` - checks if the array is within the specified length
 
+Example:
+
+```typescript
+import {array, number} from 'forma/dist/predicates';
+
+const numberArray = array(number(), {len: {min: 1, max: 3}});
+const result1 = numberArray([1, 2, 3]); // { isValid: true, value: [1, 2, 3] }
+const result2 = numberArray([1, 'hello', 3]); // { isValid: false, errors: { '[1]': 'must be a number' } }
+const result3 = numberArray([]); // { isValid: false, errors: { root: 'must have at least 1 item(s)' } }
+```
+
 ## enum
 
 `enumValue<T>(enumType: T): Pred<T[keyof T]>`
 
 Returns a predicate that checks if the input is a value of the specified enum.
 
+Example:
+
+```typescript
+import {enumValue} from 'forma/dist/predicates';
+
+enum Color { Red = 'red', Green = 'green', Blue = 'blue' }
+const isColor = enumValue(Color);
+const result1 = isColor('red'); // { isValid: true, value: 'red' }
+const result2 = isColor('yellow'); // { isValid: false, errors: { root: 'must be a valid enum value' } }
+```
+
 ## optional
 
 `optional<T>(predicate: Pred<T>): Pred<T | undefined>`
 
 Returns a predicate that checks if the input is either the type of the predicate or `undefined`.
+
+Example:
+
+```typescript
+import {optional, string} from 'forma/dist/predicates';
+
+const optionalString = optional(string());
+const result1 = optionalString('hello'); // { isValid: true, value: 'hello' }
+const result2 = optionalString(undefined); // { isValid: true, value: undefined }
+const result3 = optionalString(42); // { isValid: false, errors: { root: 'must be a string' } }
+```
 
 ## custom
 
@@ -384,6 +455,16 @@ const result3 = isBlueOrNull('red'); // { isValid: false, errors: { root: 'must 
 
 Returns a predicate that checks if the input is a valid email address.
 
+Example:
+
+```typescript
+import {email} from 'forma/dist/predicates';
+
+const isEmail = email();
+const result1 = isEmail('user@example.com'); // { isValid: true, value: 'user@example.com' }
+const result2 = isEmail('invalid-email'); // { isValid: false, errors: { root: 'must be a valid email address' } }
+```
+
 ## password
 
 `password(): Pred<string>`
@@ -396,10 +477,30 @@ Returns a predicate that checks if the input is a valid password. A valid passwo
 - Include at least one number
 - Include at least one special character
 
+Example:
+
+```typescript
+import {password} from 'forma/dist/predicates';
+
+const isPassword = password();
+const result1 = isPassword('MyPass123!'); // { isValid: true, value: 'MyPass123!' }
+const result2 = isPassword('weak'); // { isValid: false, errors: { root: 'must between 8 and 100 characters' } }
+```
+
 ## uuid
 `uuid(): Pred<string>`
 
 Returns a predicate that checks if the input is a valid UUID.
+
+Example:
+
+```typescript
+import {uuid} from 'forma/dist/predicates';
+
+const isUuid = uuid();
+const result1 = isUuid('123e4567-e89b-12d3-a456-426614174000'); // { isValid: true, value: '123e4567-e89b-12d3-a456-426614174000' }
+const result2 = isUuid('not-a-uuid'); // { isValid: false, errors: { root: 'must be a valid uuid' } }
+```
 
 ## url
 `url(opts?: Options): Pred<string>`
@@ -410,6 +511,16 @@ Options:
 
 - `allowLocalhost` - allows localhost URLs, default is `false`
 - `requireProtocol` - requires the URL to include a protocol (http:// or https://), default is `true`
+
+Example:
+
+```typescript
+import {url} from 'forma/dist/predicates';
+
+const isUrl = url({allowLocalhost: true});
+const result1 = isUrl('https://example.com'); // { isValid: true, value: 'https://example.com' }
+const result2 = isUrl('not-a-url'); // { isValid: false, errors: { root: 'must be a valid URL' } }
+```
 
 # Error Handling
 
