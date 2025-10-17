@@ -56,7 +56,7 @@ npm i forma
 - [Nested objects](#nested-objects)
 - [Type Definitions](#type-definitions)
 - [Predicates (Validators)](#predicates-validators)
-- [Error Handling](#error-handling)
+- [Validation Results](#validation-results)
 - [Advanced Usage](#advanced-usage)
 - [Contribution](#contribution)
 - [Sponsorship](#sponsorship)
@@ -517,11 +517,11 @@ const result1 = isUrl('https://example.com'); // { isValid: true, value: 'https:
 const result2 = isUrl('not-a-url'); // { isValid: false, errors: { root: 'must be a valid URL' } }
 ```
 
-# Error Handling
+# Validation Results
 
-Error messages are structured and designed to be easy to parse.
+Validation results are structured and designed to be easy to parse and work with.
 
-When validation fails, predicates return a `ValidationResult` with `isValid: false` and an `errors` object. The `errors` object contains key-value pairs of all validation errors, including any nested ones. If you are operating on "naked" values (not within an `object` predicate), the key will be `root`. Here are a few examples:
+When validation fails, predicates return a `ValidationResult` with `isValid: false` and an `errors` object. The `errors` object contains key-value pairs of all validation issues, including any nested ones. If you are operating on "naked" values (not within an `object` predicate), the key will be `root`. Here are a few examples:
 
 ### Number (naked)
 
