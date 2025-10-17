@@ -8,7 +8,7 @@
 
 The fastest, simplest, and most powerful runtime input validation for TS/JS.
 
-Sponsored by https://aeroview.io
+Sponsored by [Aeroview](https://aeroview.io)
 
 **🚀 Fast & reliable performance**  
 
