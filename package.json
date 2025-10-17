@@ -18,9 +18,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aeroview/typura.git"
+    "url": "git+https://github.com/aeroview/runtyy.git"
   },
-  "homepage": "https://github.com/aeroview/typura",
+  "homepage": "https://github.com/aeroview/runtyy",
   "license": "MIT",
   "author": "Marc H. Weiner <marc@aeroview.io> (https://aeroview.io)",
   "publishConfig": {

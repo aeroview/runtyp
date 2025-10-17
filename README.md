@@ -29,7 +29,20 @@ Sponsored by [Aeroview](https://aeroview.io)
 
 - Built-in support for email, urls, uuids, regex, enums, passwords, and more!
 
-## Performance
+# Table of contents
+
+- [Performance](#performance)
+- [Example](#example)
+- [Taking advantage of tree-shaking](#taking-advantage-of-tree-shaking)
+- [Nested objects](#nested-objects)
+- [Predicates (Validators)](#predicates-validators)
+- [Validation Results](#validation-results)
+- [Type Definitions](#type-definitions)
+- [Advanced Usage](#advanced-usage)
+- [Contribution](#contribution)
+- [Sponsorship](#sponsorship)
+ 
+# Performance
 
 forma is designed for speed. Here's how it compares to other popular programmatic validation libraries:
 
@@ -48,19 +61,6 @@ forma is designed for speed. Here's how it compares to other popular programmati
 npm i runtyy
 ```
 
-# Table of contents
-
-- [Performance](#performance)
-- [Example](#example)
-- [Taking advantage of tree-shaking](#taking-advantage-of-tree-shaking)
-- [Nested objects](#nested-objects)
-- [Type Definitions](#type-definitions)
-- [Predicates (Validators)](#predicates-validators)
-- [Validation Results](#validation-results)
-- [Advanced Usage](#advanced-usage)
-- [Contribution](#contribution)
-- [Sponsorship](#sponsorship)
- 
 # Usage
 
 ## Example
@@ -172,43 +172,6 @@ if (!result.isValid) {
     }
     */
 }
-```
-
-# Type Definitions
-
-## `ValidationResult<T>`
-
-The result type returned by all predicates:
-
-```typescript
-type ValidationResult<T> = {
-    isValid: true;
-    value: T;
-} | {
-    isValid: false;
-    errors: Record<string, string>;
-};
-```
-
-## `Infer<T>`
-
-Infer is a utility type that extracts the type of the input from a predicate function. See the [example above](#example) for usage.
-
-## `Pred<T>` 
-
-A predicate function that takes an input and returns a `ValidationResult<T>`. Every predicate function in our API returns a `Pred<T>`.
-
-Example:
-
-```typescript
-import {Pred} from 'runtyy';
-
-const isNumber: Pred<number> = (input: unknown) => {
-    if (typeof input === 'number') {
-        return { isValid: true, value: input };
-    }
-    return { isValid: false, errors: { root: 'must be a number' } };
-};
 ```
 
 # Predicates (Validators)
@@ -568,6 +531,43 @@ const result = p.object({
 // }
 ```
 
+# Type Definitions
+
+## `Pred<T>` 
+
+A predicate function that takes an input and returns a `ValidationResult<T>`. Every predicate function in our API returns a `Pred<T>`.
+
+Example:
+
+```typescript
+import {Pred} from 'runtyy';
+
+const isNumber: Pred<number> = (input: unknown) => {
+    if (typeof input === 'number') {
+        return { isValid: true, value: input };
+    }
+    return { isValid: false, errors: { root: 'must be a number' } };
+};
+```
+
+## `ValidationResult<T>`
+
+The result type returned by all predicates:
+
+```typescript
+type ValidationResult<T> = {
+    isValid: true;
+    value: T;
+} | {
+    isValid: false;
+    errors: Record<string, string>;
+};
+```
+
+## `Infer<T>`
+
+Infer is a utility type that extracts the type of the input from a predicate function. See the [example above](#example) for usage.
+
 # Advanced Usage
 
 ## Defining validation at runtime while using static `Infer` type at compile-time
@@ -592,9 +592,9 @@ type Input = Infer<typeof validator>; // string
 # Support, Feedback, and Contributions
 
 - Star this repo if you like it!
-- Submit an [issue](https://github.com/mhweiner/jsout/issues) with your problem, feature request or bug report
+- Submit an [issue](https://github.com/aeroview/runtyy/issues) with your problem, feature request or bug report
 - Issue a PR against `main` and request review. Make sure all tests pass and coverage is good.
-- Write about `forma` in your blog, tweet about it, or share it with your friends!
+- Write about `runtyy` in your blog, tweet about it, or share it with your friends!
 
 # Sponsorship
 <br>
