@@ -12,7 +12,7 @@ Sponsored by [Aeroview](https://aeroview.io)
 
 **🚀 Fast & reliable performance**  
 
-- 25x faster than `zod` and `yup`, 4.3x slower than `joi` (see [Performance](#performance) section)
+- 25x faster than `zod` and `yup`, 4.3x faster than `joi` (see [Performance](#performance) section)
 - Supports tree-shaking via ES Modules so you only bundle what you use
 - No dependencies
 - 100% test coverage
