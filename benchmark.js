@@ -39,7 +39,7 @@ const invalidUser = {
 };
 
 // Define schemas for each library
-const runtyySchema = p.object({
+const runtypSchema = p.object({
     name: p.string({len: {min: 1, max: 100}}),
     email: p.email(),
     age: p.number({range: {min: 0, max: 150}}),
@@ -154,7 +154,7 @@ function benchmark(name, fn, iterations = 100000) {
 }
 
 // Validation functions
-const runtyyValid = (data) => runtyySchema(data);
+const runtypValid = (data) => runtypSchema(data);
 const zodValid = (data) => {
 
     try {
@@ -198,7 +198,7 @@ console.log('==========================================');
 console.log('Testing with 100,000 iterations each...');
 
 const results = [
-    benchmark('runtyy', runtyyValid),
+    benchmark('runtyp', runtypValid),
     benchmark('zod', zodValid),
     benchmark('joi', joiValid),
     benchmark('yup', yupValid),

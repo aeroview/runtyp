@@ -1,5 +1,5 @@
 {
-  "name": "runtyy",
+  "name": "runtyp",
   "version": "1.0.0",
   "description": "Lightning-fast, zero-dependency runtime validation for TS/JS. 25x faster than zod with a cleaner API.",
   "keywords": [
@@ -18,9 +18,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aeroview/runtyy.git"
+    "url": "git+https://github.com/aeroview/runtyp.git"
   },
-  "homepage": "https://github.com/aeroview/runtyy",
+  "homepage": "https://github.com/aeroview/runtyp",
   "license": "MIT",
   "author": "Marc H. Weiner <marc@aeroview.io> (https://aeroview.io)",
   "publishConfig": {
