@@ -197,6 +197,7 @@ Predicates are the building blocks of the validation API. They are functions tha
 - [`uuid()`](#uuid) - Validates UUID strings
 - [`url()`](#url) - Validates URLs with optional constraints
 - [`date()`](#date) - Validates Date objects with optional string and timestamp support
+- [`any()`](#any) - Accepts any value without validation
 
 ## boolean
 
@@ -535,6 +536,31 @@ const isFlexibleDate = date({allowString: true, allowTimestamp: true});
 const result8 = isFlexibleDate(new Date()); // { isValid: true, value: Date }
 const result9 = isFlexibleDate('2023-01-01'); // { isValid: true, value: Date('2023-01-01') }
 const result10 = isFlexibleDate(1672531200000); // { isValid: true, value: Date(1672531200000) }
+```
+
+## any
+`any(): Pred<any>`
+
+Returns a predicate that accepts any value without validation. This is useful when you want to include a field in your schema but skip validation for it.
+
+Example:
+
+```typescript
+import {any, object, string} from 'runtyp/dist/predicates';
+
+const isAny = any();
+const result1 = isAny(true); // { isValid: true, value: true }
+const result2 = isAny('hello'); // { isValid: true, value: 'hello' }
+const result3 = isAny(null); // { isValid: true, value: null }
+const result4 = isAny(undefined); // { isValid: true, value: undefined }
+const result5 = isAny({foo: 'bar'}); // { isValid: true, value: {foo: 'bar'} }
+
+// Useful in object schemas when you want to allow any value for a field
+const schema = object({
+    name: string(),
+    metadata: any(), // Accepts any value
+});
+const result6 = schema({name: 'John', metadata: {anything: 'goes'}}); // { isValid: true, value: {name: 'John', metadata: {anything: 'goes'}} }
 ```
 
 # Validation Results
