@@ -8,9 +8,43 @@ type ObjectOptions = {
 export function object<T extends Record<string, Pred<any>>>(
     schema: T,
     options?: ObjectOptions
-): Pred<InferShape<T>> {
+): Pred<InferShape<T>>;
+export function object(
+    options?: ObjectOptions
+): Pred<Record<string, any>>;
+export function object<T extends Record<string, Pred<any>>>(
+    schemaOrOptions?: T | ObjectOptions,
+    options?: ObjectOptions
+): Pred<InferShape<T>> | Pred<Record<string, any>> {
 
-    if (typeof schema !== 'object') throw new Error('invalid schema, must be object');
+    // Check if first argument is options (has allowUnknownKeys property) or is undefined
+    // If allowUnknownKeys exists, it must be boolean (or undefined since it's optional)
+    const isOptions = !schemaOrOptions || (typeof schemaOrOptions === 'object' && !Array.isArray(schemaOrOptions) && 'allowUnknownKeys' in schemaOrOptions && (schemaOrOptions.allowUnknownKeys === undefined || typeof schemaOrOptions.allowUnknownKeys === 'boolean'));
+    
+    const schema = isOptions ? undefined : (schemaOrOptions as T);
+    const opts = isOptions ? (schemaOrOptions as ObjectOptions | undefined) : options;
+
+    if (schema && typeof schema !== 'object') throw new Error('invalid schema, must be object');
+
+    if (!schema) {
+
+        // No schema provided - just validate it's an object
+        return (value: unknown): ValidationResult<Record<string, any>> => {
+
+            if (typeof value !== 'object' || !value || Array.isArray(value)) {
+
+                return {isValid: false, errors: {root: 'must be an object'}};
+
+            }
+
+            return {
+                isValid: true,
+                value: value as Record<string, any>,
+            };
+
+        };
+
+    }
 
     return (value: unknown): ValidationResult<InferShape<T>> => {
 
@@ -47,7 +81,7 @@ export function object<T extends Record<string, Pred<any>>>(
         }, {});
 
         // go through each key in the value
-        if (!options?.allowUnknownKeys) {
+        if (!opts?.allowUnknownKeys) {
 
             Object.keys(value as Record<string, unknown>).forEach((key) => {
 

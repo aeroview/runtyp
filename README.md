@@ -259,9 +259,9 @@ const result3 = isString(42); // { isValid: false, errors: { root: 'must be a st
 
 ## object
 
-`object<T>(predicates: {[K in keyof T]: Pred<T[K]>}, opts?: Options): Pred<T>`
+`object<T>(predicates?: {[K in keyof T]: Pred<T[K]>}, opts?: Options): Pred<T> | Pred<Record<string, any>>`
 
-Returns a predicate that checks if the input is an object with the specified keys and values.
+Returns a predicate that checks if the input is an object. If a schema is provided, it validates the object against the specified keys and values. If no schema is provided, it simply validates that the input is an object (not null, not an array, etc.).
 
 Options:
 
@@ -272,12 +272,19 @@ Example:
 ```typescript
 import {object, string, number} from 'runtyp/dist/predicates';
 
+// With schema
 const userSchema = object({
     name: string(),
     age: number()
 });
 const result1 = userSchema({name: 'John', age: 30}); // { isValid: true, value: { name: 'John', age: 30 } }
 const result2 = userSchema({name: 'John'}); // { isValid: false, errors: { age: 'must be a number' } }
+
+// Without schema - accepts any object
+const anyObject = object();
+const result3 = anyObject({foo: 'bar', baz: 42}); // { isValid: true, value: {foo: 'bar', baz: 42} }
+const result4 = anyObject(null); // { isValid: false, errors: { root: 'must be an object' } }
+const result5 = anyObject([]); // { isValid: false, errors: { root: 'must be an object' } }
 ```
 
 ## array

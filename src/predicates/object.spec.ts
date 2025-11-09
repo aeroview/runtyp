@@ -181,3 +181,34 @@ test('object(): allowUnknownKeys option', (assert) => {
     }).isValid, true, 'should return true when allowUnknownKeys is true');
 
 });
+
+test('object(): no schema - accepts any object', (assert) => {
+
+    const pred = object();
+
+    assert.equal(pred({foo: 'bar'}), {isValid: true, value: {foo: 'bar'}}, 'should return true for any object');
+    assert.equal(pred({a: 1, b: 2, c: 'three'}), {isValid: true, value: {a: 1, b: 2, c: 'three'}}, 'should return true for objects with any keys');
+    assert.equal(pred({}), {isValid: true, value: {}}, 'should return true for empty objects');
+
+});
+
+test('object(): no schema - rejects non-objects', (assert) => {
+
+    const pred = object();
+
+    assert.equal(pred(null), {isValid: false, errors: {root: 'must be an object'}}, 'should return false for null');
+    assert.equal(pred(undefined), {isValid: false, errors: {root: 'must be an object'}}, 'should return false for undefined');
+    assert.equal(pred('string'), {isValid: false, errors: {root: 'must be an object'}}, 'should return false for strings');
+    assert.equal(pred(42), {isValid: false, errors: {root: 'must be an object'}}, 'should return false for numbers');
+    assert.equal(pred(true), {isValid: false, errors: {root: 'must be an object'}}, 'should return false for booleans');
+    assert.equal(pred([]), {isValid: false, errors: {root: 'must be an object'}}, 'should return false for arrays');
+
+});
+
+test('object(): no schema with options', (assert) => {
+
+    const pred = object({allowUnknownKeys: true});
+
+    assert.equal(pred({foo: 'bar'}), {isValid: true, value: {foo: 'bar'}}, 'should return true for any object even with options');
+
+});
