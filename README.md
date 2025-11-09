@@ -196,6 +196,7 @@ Predicates are the building blocks of the validation API. They are functions tha
 - [`password()`](#password) - Validates password strength
 - [`uuid()`](#uuid) - Validates UUID strings
 - [`url()`](#url) - Validates URLs with optional constraints
+- [`date()`](#date) - Validates Date objects with optional string and timestamp support
 
 ## boolean
 
@@ -497,6 +498,43 @@ import {url} from 'runtyp/dist/predicates';
 const isUrl = url({allowLocalhost: true});
 const result1 = isUrl('https://example.com'); // { isValid: true, value: 'https://example.com' }
 const result2 = isUrl('not-a-url'); // { isValid: false, errors: { root: 'must be a valid URL' } }
+```
+
+## date
+`date(opts?: Options): Pred<Date>`
+
+Returns a predicate that checks if the input is a valid Date object.
+
+Options:
+
+- `allowString` - allows date strings to be converted to Date objects, default is `false`
+- `allowTimestamp` - allows numeric timestamps to be converted to Date objects, default is `false`
+
+Example:
+
+```typescript
+import {date} from 'runtyp/dist/predicates';
+
+const isDate = date();
+const result1 = isDate(new Date('2023-01-01')); // { isValid: true, value: Date('2023-01-01') }
+const result2 = isDate('2023-01-01'); // { isValid: false, errors: { root: 'must be a Date object' } }
+
+// With allowString option
+const isDateFromString = date({allowString: true});
+const result3 = isDateFromString('2023-01-01'); // { isValid: true, value: Date('2023-01-01') }
+const result4 = isDateFromString('2023-01-01T12:00:00Z'); // { isValid: true, value: Date('2023-01-01T12:00:00Z') }
+const result5 = isDateFromString('invalid-date'); // { isValid: false, errors: { root: 'must be a valid date' } }
+
+// With allowTimestamp option
+const isDateFromTimestamp = date({allowTimestamp: true});
+const result6 = isDateFromTimestamp(1672531200000); // { isValid: true, value: Date(1672531200000) }
+const result7 = isDateFromTimestamp(0); // { isValid: true, value: Date(0) }
+
+// With both options
+const isFlexibleDate = date({allowString: true, allowTimestamp: true});
+const result8 = isFlexibleDate(new Date()); // { isValid: true, value: Date }
+const result9 = isFlexibleDate('2023-01-01'); // { isValid: true, value: Date('2023-01-01') }
+const result10 = isFlexibleDate(1672531200000); // { isValid: true, value: Date(1672531200000) }
 ```
 
 # Validation Results
