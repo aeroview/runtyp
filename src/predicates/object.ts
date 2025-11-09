@@ -20,7 +20,7 @@ export function object<T extends Record<string, Pred<any>>>(
     // Check if first argument is options (has allowUnknownKeys property) or is undefined
     // If allowUnknownKeys exists, it must be boolean (or undefined since it's optional)
     const isOptions = !schemaOrOptions || (typeof schemaOrOptions === 'object' && !Array.isArray(schemaOrOptions) && 'allowUnknownKeys' in schemaOrOptions && (schemaOrOptions.allowUnknownKeys === undefined || typeof schemaOrOptions.allowUnknownKeys === 'boolean'));
-    
+
     const schema = isOptions ? undefined : (schemaOrOptions as T);
     const opts = isOptions ? (schemaOrOptions as ObjectOptions | undefined) : options;
 
